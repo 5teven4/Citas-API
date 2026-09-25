@@ -1,0 +1,24 @@
+#!/bin/sh
+set -eu
+
+repository_root=$(git rev-parse --show-toplevel)
+cd "$repository_root"
+
+if git diff --cached --name-only | grep -Eq '(^|/)(\.env|.*\.pem|.*\.key)$'; then
+  echo "Commit bloqueado: no se permiten archivos de entorno ni claves privadas."
+  exit 1
+fi
+
+if git diff --cached -U0 | grep -Eiq '^\+[^+].*(password|secret|token|api[_-]?key)[[:space:]]*[:=][[:space:]]*[^[:space:]]{12,}'; then
+  echo "Commit bloqueado: se detectó un posible secreto en los cambios preparados."
+  exit 1
+fi
+
+if command -v mvn >/dev/null 2>&1; then
+  mvn test
+elif command -v docker >/dev/null 2>&1; then
+  MSYS_NO_PATHCONV=1 docker run --rm --mount "type=bind,source=$(pwd -W),target=/workspace" --mount "type=volume,source=fcv-citas-api-maven-cache,target=/root/.m2" -w /workspace maven:3.9-eclipse-temurin-21 mvn test
+else
+  echo "Commit bloqueado: se necesita Maven o Docker para ejecutar las pruebas."
+  exit 1
+fi

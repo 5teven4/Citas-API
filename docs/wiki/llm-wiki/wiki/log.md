@@ -45,3 +45,52 @@
 - Confirmadas salidas de `mvn test` y `npm run build`.
 - Resultado: PASS. MySQL permanece saludable; los contenedores temporales de
   pruebas de API fueron retirados.
+
+## [2026-09-25] learn | LOOP_00: auditoría S1–S3 y gate de cierre
+
+- Fase alcanzada: 1–4 auditoría y consolidación; Fase 6 cerrada como
+  `PENDIENTE_DECISION_HUMANA`.
+- HECHO: ambos repositorios tienen solo `main` y un único commit inicial
+  fechado 2026-09-23; no hay rama `develop` ni commits trazables `feat(s2)` o
+  de S3.
+- HECHO: `citas-api` contiene el incremento S2 de autenticación y la wiki
+  registra evidencia previa de pruebas, pero en esta corrida `mvn` no está
+  disponible en el entorno. `citas-web` contiene el formulario de
+  registro/login, pero su build falla aquí con `spawn EPERM` de esbuild.
+- HECHO: no hay implementaciones, HU aprobadas, pruebas específicas ni hooks
+  versionados que demuestren los flujos de S3, Red→Green, secreto bloqueado y
+  commit posterior permitido.
+- Próxima acción: el estudiante debe aprobar las HU de S3 y decidir cómo
+  restaurar/proveer la trazabilidad faltante y las herramientas locales antes
+  de autorizar correcciones. No se inició S4–S6.
+
+## [2026-09-25] learn | LOOP_00: corrección de evidencia de entorno
+
+- HECHO: `npm run build` del checkout `citas-web` de este workspace completó
+  correctamente fuera del sandbox (Vite 7.3.6). El `spawn EPERM` previo fue
+  una limitación del sandbox, no un fallo del proyecto.
+- HECHO: los contenedores Docker activos montan otro checkout,
+  `C:\\Users\\IA ACADEMY 12\\Git\\FCV_Proyecto_Citas_v1`, con una aplicación
+  Angular distinta. Sus resultados no se usan como evidencia de este
+  workspace React/Spring.
+- PREGUNTA ABIERTA: queda pendiente ejecutar Maven contra este checkout, que
+  no incluye Maven Wrapper y no tiene `mvn` disponible en el host.
+
+## [2026-09-25] learn | LOOP_00: verificación real de compilación
+
+- HECHO: un contenedor Maven efímero montado exclusivamente sobre el checkout
+  actual de `citas-api` ejecutó `mvn test` con éxito: 2 pruebas, 0 fallos y 0
+  errores (`JwtServiceTest`).
+- HECHO: el frontend React/Vite y las pruebas JWT pasan sus verificaciones
+  disponibles, pero su cobertura no prueba aún los flujos ni las reglas de S3.
+
+## [2026-09-25] learn | LOOP_00: quality gate local S3
+
+- HECHO: se versionaron hooks `pre-commit` en ambos repositorios y se activaron
+  localmente mediante `core.hooksPath=.githooks`.
+- HECHO: el fixture sintético de secreto fue bloqueado por ambos hooks (FAIL).
+  Tras retirarlo, el hook web ejecutó `npm run build` con éxito y el hook API
+  ejecutó `mvn test` en un contenedor Maven con caché: 2 pruebas, 0 fallos.
+- DECISIÓN PENDIENTE: este gate cubre secreto y verificación disponible; no
+  sustituye las pruebas funcionales de S3, que requieren HU aprobadas e
+  implementación de los flujos de citas.

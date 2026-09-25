@@ -30,3 +30,14 @@ Endpoints iniciales:
 - `automations/n8n/`: JSON exportados en S5/S6.
 
 Lee el PRD en la carpeta raíz antes de inicializar Spring Boot.
+# Hooks locales
+
+Activa los hooks versionados antes de hacer commits:
+
+```sh
+git config core.hooksPath .githooks
+```
+
+El hook `pre-commit` bloquea archivos de entorno, patrones de secretos en los
+cambios preparados y ejecuta `mvn test` (o un contenedor Maven efímero cuando
+Maven no está instalado en el host).
