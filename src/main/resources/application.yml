@@ -28,7 +28,7 @@ app:
       access-minutes: ${JWT_ACCESS_MINUTES:15}
       refresh-days: ${JWT_REFRESH_DAYS:7}
   cors:
-    allowed-origin: ${FRONTEND_ORIGIN:http://localhost:5173}
+    allowed-origins: ${FRONTEND_ORIGINS:${FRONTEND_ORIGIN:http://localhost:5173,http://localhost:5174,http://localhost:4200}}
 
 management:
   endpoints:

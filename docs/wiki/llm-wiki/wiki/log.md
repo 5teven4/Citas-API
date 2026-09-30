@@ -94,3 +94,139 @@
 - DECISIÓN PENDIENTE: este gate cubre secreto y verificación disponible; no
   sustituye las pruebas funcionales de S3, que requieren HU aprobadas e
   implementación de los flujos de citas.
+
+## [2026-09-25] learn | LOOP_00: incremento S3 autorizado
+
+- HECHO: se aprobó y documentó HU-002, EP-002, casos de prueba S3 y contrato
+  REST por instrucción del estudiante.
+- HECHO: V2 incorpora profesionales, disponibilidad, slots, reservas, estados
+  e historial; el backend expone administración, bloques, catálogos,
+  disponibilidad, reserva y decisión administrativa.
+- HECHO: `mvn test` PASS con 5 pruebas, incluidas reglas 30/60 y reserva
+  incompatible; `npm run build` PASS tras incorporar cliente REST S3.
+- PREGUNTA ABIERTA: faltan pruebas de integración MySQL y pantallas de roles
+  ADMIN/PROFESSIONAL antes de declarar S3 en verde.
+
+## [2026-09-25] learn | LOOP_00: continuación en Fase 6
+
+- HECHO: se añadió `GET /api/v1/admin/appointments/requests`, protegido para
+  ADMIN, y se documentó en el contrato S3. La API devuelve datos sintéticos
+  de citas `REQUESTED` necesarios para decidir.
+- HECHO: la UI S3 ahora lee `roles` del access token y carga catálogos REST;
+  ofrece reserva USER, publicación de bloques PROFESSIONAL y creación de
+  profesionales/aprobación o rechazo ADMIN, sin IDs de catálogo fijos.
+- HECHO: `mvn test` PASS, 6 pruebas (3 SlotRules, 2 JwtService, 1
+  SchedulingService); `npm run build` PASS (TypeScript y Vite).
+- HECHO: ambos repos están en `develop`, con hooks `pre-commit` activados;
+  el último commit rastreado en cada uno es `test(s3): add local quality
+  gates`. El historial no demuestra commits de sesión S2 ni S3; hay cambios
+  S3 locales todavía no versionados.
+- PREGUNTA ABIERTA: Fase 6 continúa `PENDIENTE_DECISION_HUMANA`. Aún faltan
+  pruebas S3 contra MySQL y autorización/end-to-end por rol; el build no las
+  demuestra. Tampoco hay evidencia histórica suficiente para reconstruir
+  trazabilidad de commits S2/S3 sin crear commits nuevos o inventar historial.
+- Próxima acción: decidir cómo aportar/aceptar trazabilidad histórica y
+  habilitar validación S3 integrada; no iniciar backlog S4-S6 hasta que el
+  gate S1-S3 sea PASS.
+
+## [2026-09-25] learn | S4: ciclo de vida y cierre del alcance
+
+- HECHO: a petición explícita del estudiante, el alcance de esta corrida se
+  limitó hasta S4; no se iniciaron cambios de S5/S6 ni workflows n8n.
+- HECHO: se añadieron V3, ciclo de citas, reprogramación transaccional,
+  agenda/cierre PROFESSIONAL, filtros/historial USER, catálogos CRUD con baja
+  lógica y recuperación de password con token hash/expirable/de un solo uso.
+- HECHO: migraciones V1–V3 y validación JPA pasan tanto en MySQL vacío como
+  sobre `database/reference/db.sql`, el baseline del compose.
+- HECHO: `mvn -Pintegration-tests verify` pasó 7 pruebas MySQL; `mvn test`
+  y `npm run build` pasaron. La UI consume los contratos S4 y el frontend
+  local respondió HTTP 200.
+- HECHO: `LOOP_01` tiene evidencia RED→GREEN de segunda reserva; `LOOP_02`
+  pasó verificación técnica de reprogramación, retención/transferencia de
+  slots, estados visibles y build. Ver [[../scrum/evidencia-s4-loops]].
+- PREGUNTA ABIERTA: `LOOP_03` queda `PENDIENTE_ESTUDIANTE`: el reto debe ser
+  diseñado y justificado por el estudiante, no por el agente.
+- PREGUNTA ABIERTA: la activación del token temporal de recuperación es
+  opt-in local; SMTP sigue sin configurarse. No se hizo merge a `main` ni se
+  crearon commits de sesión sin petición explícita.
+- Próxima acción: el estudiante diseña LOOP_03 y decide si versiona/integra
+  S4; no continuar a S5/S6 en esta corrida.
+
+## [2026-09-25] verify | S4: smoke test de contratos y sesión
+
+- HECHO: el checkout respondió HTTP 200 en la UI local y Spring Boot inició
+  en el puerto alternativo 8081 contra `citas_s4_empty_validation`; el
+  contenedor que reserva 8080 no fue modificado.
+- HECHO: smoke test HTTP sintético comprobó registro/login, cita general
+  `APPROVED`, especializada `REQUESTED`, decisión ADMIN, reprogramación
+  visible `PENDING`, aprobación con cambio de horario y cancelación.
+- HECHO: cierre de sesión revocó refresh; reutilizarlo devolvió HTTP 401.
+- HECHO: `mvn -Pintegration-tests verify` terminó con 6 pruebas unitarias y
+  7 de integración MySQL en PASS; `npm run build` PASS.
+- ALCANCE: toda la prueba manual usó usuarios ficticios en la base temporal
+  local `citas_s4_empty_validation`. No se usó ni modificó la base regular.
+- PREGUNTA ABIERTA: LOOP_03 sigue esperando el reto diseñado por el estudiante.
+
+## [2026-09-25] verify | S4: demo local aislada
+
+- HECHO: el frontend del checkout corre en `http://localhost:5175/` y la API
+  en `http://localhost:8081/`; ambos responden correctamente.
+- HECHO: la demo apunta únicamente a `citas_s4_empty_validation`, un MySQL
+  temporal con datos sintéticos. El usuario runtime tiene privilegios solo
+  sobre esa base y root requiere contraseña temporal generada en memoria.
+- HECHO: se dejó intacto el contenedor existente que reserva el puerto 8080
+  y no se usó la base habitual del compose.
+- ALCANCE: las sesiones S5/S6 y n8n no se tocaron. LOOP_03 sigue pendiente
+  de diseño por el estudiante.
+## [2026-09-30] learn | actualización UX/UI del frontend
+
+- HECHO: `citas-web/src/styles/tokens.css` centraliza tokens de color,
+  tipografía, espaciado, bordes, foco, feedback y controles.
+- HECHO: `citas-web/src/styles.css` aplica la paleta corporativa y estados
+  visuales consistentes sin modificar API, payloads ni handlers.
+- DECISIÓN: mantener el flujo funcional existente y no inventar router/sidebar
+  hasta que existan rutas respaldadas por el contrato del frontend.
+- VALIDACIÓN: `npx tsc -b` pasó; la revisión visual con lector de pantalla y
+  viewports queda pendiente.
+- Ver [[frontend-ux-ui]].
+
+## [2026-09-30] learn | referencia visual para autenticación
+
+- DECISIÓN: usar la página pública de citas de EPS Sanitas únicamente como
+  referencia de composición y jerarquía, conservando identidad y contenido de
+  FCV Citas.
+- HECHO: la autenticación adopta composición dividida en desktop y una sola
+  columna en móvil; no se modificaron contratos REST ni handlers.
+- VALIDACIÓN: `npx tsc -b` y `npm run build` pasaron.
+- Ver [[frontend-ux-ui]].
+
+## [2026-09-30] verify | recuperación de API local y MySQL
+
+- HECHO: el frontend recibía `ERR_EMPTY_RESPONSE` al invocar
+  `POST /api/v1/auth/register` en `localhost:8080`.
+- HECHO: `citas-api-dev` estaba `Up`, pero ejecutaba únicamente
+  `tail -f /dev/null`; no había un proceso Java escuchando en el puerto 8080.
+- HECHO: al iniciar Spring Boot, Flyway detectó checksums diferentes para V2 y
+  V3 y detuvo el arranque para proteger la base existente.
+- DECISIÓN: con autorización explícita del usuario se eliminó y reconstruyó
+  solo el volumen `fcv-citas-training_mysql_data`, que contenía datos locales
+  sintéticos.
+- VALIDACIÓN: el esquema reconstruido contiene 22 tablas, 2 sedes y 1
+  especialidad; `/actuator/health` respondió HTTP 200 y el endpoint de registro
+  respondió HTTP 400 ante un cuerpo inválido, en lugar de cerrar la conexión.
+- Ver [[architecture-runtime]] y [[risks-open-questions]].
+
+## [2026-09-30] learn | MUI y semilla de doctores para agendamiento
+
+- DECISIÓN: incorporar Material UI con un tema centralizado para mejorar el
+  flujo de agendamiento sin cambiar el contrato REST.
+- HECHO: el flujo usa Autocomplete para especialidad, sede y profesional,
+  Stepper para el progreso, Alert para estados y botones de horario legibles.
+- HECHO: la migración V4 crea tres doctores, asociaciones sintéticas y
+  disponibilidad futura para pruebas manuales.
+- VALIDACIÓN: `npm run build` pasó; la API devolvió doctores para Medicina
+  General y Cardiología en las sedes semilla.
+- FUENTES UX: documentación oficial de MUI y material público de MinSalud y
+  MedlinePlus sobre preparación y participación segura en citas médicas.
+- Ver [[frontend-ux-ui]].
+

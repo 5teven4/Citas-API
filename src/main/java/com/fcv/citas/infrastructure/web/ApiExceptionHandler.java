@@ -3,6 +3,7 @@ package com.fcv.citas.infrastructure.web;
 import com.fcv.citas.application.auth.DuplicateResourceException;
 import com.fcv.citas.application.auth.InvalidCredentialsException;
 import com.fcv.citas.application.auth.InvalidRefreshTokenException;
+import com.fcv.citas.application.appointments.SlotRules;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -20,11 +21,19 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    ApiError integrity(DataIntegrityViolationException exception) { return error(HttpStatus.CONFLICT, "El email o documento ya está registrado"); }
+    ApiError integrity(DataIntegrityViolationException exception) { return error(HttpStatus.CONFLICT, "El recurso entra en conflicto con datos existentes"); }
 
     @ExceptionHandler({InvalidCredentialsException.class, InvalidRefreshTokenException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     ApiError unauthorized(RuntimeException exception) { return error(HttpStatus.UNAUTHORIZED, exception.getMessage()); }
+
+    @ExceptionHandler(SlotRules.SlotAlreadyReservedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    ApiError occupied(RuntimeException exception) { return error(HttpStatus.CONFLICT, exception.getMessage()); }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ApiError invalid(RuntimeException exception) { return error(HttpStatus.BAD_REQUEST, exception.getMessage()); }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

@@ -1,7 +1,7 @@
 ---
 type: index
 status: verified
-updated: 2026-09-16
+updated: 2026-09-25
 sources: [SRC-README, SRC-PRD, SRC-TECH, SRC-3FN, SRC-SCHEMA, SRC-COMPOSE]
 ---
 
@@ -19,6 +19,7 @@ incluye fuentes y enlaces para continuar la exploración.
 ## Arquitectura y datos
 
 - [[architecture-runtime]] — repositorios, stack, Docker y límites técnicos.
+- [[frontend-ux-ui]] — tokens y decisiones UX/UI del frontend.
 - [[implementation-s2-auth]] — registro, JWT, Flyway y evidencia de S2.
 - [[data-model]] — modelo relacional, normalización y reservas de slots.
 - [[decisions]] — decisiones confirmadas del proyecto y de la wiki.
@@ -27,6 +28,8 @@ incluye fuentes y enlaces para continuar la exploración.
 ## Operación
 
 - [[log]] — historial cronológico append-only.
+- [[../scrum/contrato-s4|Contrato REST S4]] — ciclo de vida, catálogos y acceso.
+- [[../scrum/evidencia-s4-loops|Evidencia LOOP_01/02 S4]] — verificación de los loops y reto pendiente del estudiante.
 - [[../raw/source-registry|Registro de fuentes]] — rutas, propósito y hashes de
   las fuentes raw.
 - [[../schema/workflows|Flujos]] — INGEST, QUERY, LEARN y LINT.
